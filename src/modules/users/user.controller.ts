@@ -15,7 +15,70 @@ userRouter.patch(
 );
 userRouter.post("/signIn", validation(UV.signInSchema), US.signIn);
 userRouter.get("/profile", authentication(), US.getProfile);
-userRouter.get("/refreshToken", authentication(TokenType.refresh), US.refreshToken);
-userRouter.post("/logout", authentication(),validation(UV.logoutSchema), US.logout);
+userRouter.get(
+  "/refreshToken",
+  authentication(TokenType.refresh),
+  US.refreshToken
+);
+userRouter.post(
+  "/logout",
+  authentication(),
+  validation(UV.logoutSchema),
+  US.logout
+);
+
+userRouter.patch(
+  "/updatePassword",
+  authentication(),
+  validation(UV.updatePasswordSchema),
+  US.updatePassword
+);
+userRouter.patch(
+  "/updateBasicInfo",
+  authentication(),
+  validation(UV.updateBasicInfoSchema),
+  US.updateBasicInfo
+);
+userRouter.patch(
+  "/updateEmail",
+  authentication(),
+  validation(UV.updateEmailSchema),
+  US.updateEmail
+);
+userRouter.patch(
+  "/confirmUpdateEmail",
+  authentication(),
+  validation(UV.confirmUpdateEmailSchema),
+  US.confirmUpdateEmail
+);
+userRouter.post(
+  "/likeUnlike",
+  authentication(),
+  validation(UV.likeUnlikeSchema),
+  US.likeUnlike
+);
+userRouter.post(
+  "/sendEmail",
+  authentication(),
+  validation(UV.sendEmailTagsSchema),
+  US.sendEmailTags
+);
+userRouter.post(
+  "/enable2FA",
+  authentication(),
+  validation(UV.enable2FASchema),
+  US.enable2FA
+);
+userRouter.post(
+  "/verify2FA",
+  authentication(),
+  validation(UV.verify2FASchema),
+  US.verify2FA
+);
+userRouter.post(
+  "/loginConfirmation",
+  validation(UV.loginConfirmationSchema),
+  US.loginConfirmation
+);
 
 export default userRouter;

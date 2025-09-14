@@ -20,6 +20,8 @@ export interface IUser {
   gender: GenderType;
   confirmed: boolean;
   otp?: string;
+  twoFactorEnabled?: boolean;
+  tempOtp?: string;
   role?: RoleType;
   changeCredentials: Date;
   createdAt: Date;
@@ -35,8 +37,10 @@ const userSchema = new mongoose.Schema<IUser>(
     age: { type: Number, min: 18, max: 60, required: true },
     phone: { type: String },
     otp: { type: String },
+    tempOtp: { type: String },
     address: { type: String },
     confirmed: { type: Boolean },
+    twoFactorEnabled: { type: Boolean, default: false },
     changeCredentials: { type: Date },
     gender: { type: String, enum: GenderType, required: true },
     role: { type: String, enum: RoleType, default: RoleType.user },
