@@ -16,7 +16,7 @@ export class LikeRepository extends dbRepository<ILike> {
 
     if (existingLike) {
       await this.model.deleteOne({ _id: existingLike._id });
-      return { action: "unliked", liked: false };
+      return { action: "unLiked", liked: false };
     } else {
       await this.create({
         userId: new Types.ObjectId(userId),

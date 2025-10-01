@@ -80,5 +80,82 @@ userRouter.post(
   validation(UV.loginConfirmationSchema),
   US.loginConfirmation
 );
+userRouter.post(
+  "/forgotPassword",
+  validation(UV.forgotPasswordSchema),
+  US.forgotPassword
+);
+userRouter.post(
+  "/resetPassword",
+  validation(UV.resetPasswordSchema),
+  US.resetPassword
+);
+userRouter.post("/googleAuth", validation(UV.googleAuthSchema), US.googleAuth);
+
+userRouter.post("/upload", US.upload.any(), US.uploadFiles);
+
+userRouter.post(
+  "/presigned-upload-url",
+  validation(UV.presignedUploadUrlSchema),
+  US.getPresignedUploadUrl
+);
+userRouter.post(
+  "/presigned-download-url",
+  validation(UV.presignedDownloadUrlSchema),
+  US.getPresignedDownloadUrl
+);
+userRouter.post(
+  "/multiple-presigned-upload-urls",
+  validation(UV.multiplePresignedUploadUrlsSchema),
+  US.getMultiplePresignedUploadUrls
+);
+
+// File management routes
+userRouter.get("/files/:key(*)", US.getFileInfo); // Get file metadata
+userRouter.get("/download/:key(*)", US.downloadFile); // Download file
+userRouter.get("/files", US.listFiles); // List files (with optional ?prefix=folder/)
+userRouter.delete(
+  "/folder",
+  validation(UV.deleteFolderSchema),
+  US.deleteFolder
+); // Delete folder by prefix
+userRouter.delete("/files/:key(*)", US.deleteFile); // Delete single file
+userRouter.delete(
+  "/files",
+  validation(UV.deleteMultipleFilesSchema),
+  US.deleteMultipleFiles
+); // Delete multiple files
+userRouter.get("/signed-url/:key(*)", US.getFileWithSignedUrl); // Get file with signed URL
+
+// Profile image management
+userRouter.patch(
+  "/profile-image",
+  authentication(),
+  US.upload.single("profileImage"),
+  US.updateProfileImage
+);
+
+// Account management - User actions
+userRouter.patch(
+  "/freeze-account",
+  authentication(),
+  validation(UV.freezeAccountSchema),
+  US.freezeAccount
+);
+userRouter.patch("/restore-account", authentication(), US.restoreAccount);
+
+// Account management - Admin actions (require admin role)
+userRouter.patch(
+  "/admin/freeze-account",
+  authentication(),
+  validation(UV.adminFreezeAccountSchema),
+  US.adminFreezeAccount
+);
+userRouter.patch(
+  "/admin/restore-account",
+  authentication(),
+  validation(UV.adminRestoreAccountSchema),
+  US.adminRestoreAccount
+);
 
 export default userRouter;

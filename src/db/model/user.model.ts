@@ -13,15 +13,24 @@ export interface IUser {
   lName: string;
   userName?: string;
   email: string;
-  password: string;
-  age: number;
+  password?: string;
+  age?: number;
   phone?: string;
   address?: string;
-  gender: GenderType;
+  gender?: GenderType;
   confirmed: boolean;
   otp?: string;
   twoFactorEnabled?: boolean;
   tempOtp?: string;
+  resetPasswordOtp?: string;
+  googleId?: string;
+  profilePicture?: string;
+  profileImageKey?: string; // S3 key for profile image
+  authProvider?: string;
+  accountStatus?: "active" | "frozen" | "suspended";
+  frozenAt?: Date;
+  frozenReason?: string;
+  restoredAt?: Date;
   role?: RoleType;
   changeCredentials: Date;
   createdAt: Date;
@@ -33,16 +42,29 @@ const userSchema = new mongoose.Schema<IUser>(
     fName: { type: String, required: true, minLength: 2, trim: true },
     lName: { type: String, required: true, minLength: 2, trim: true },
     email: { type: String, required: true, unique: true, trim: true },
-    password: { type: String, required: true },
-    age: { type: Number, min: 18, max: 60, required: true },
+    password: { type: String },
+    age: { type: Number, min: 18, max: 60 },
     phone: { type: String },
     otp: { type: String },
     tempOtp: { type: String },
+    resetPasswordOtp: { type: String },
     address: { type: String },
-    confirmed: { type: Boolean },
+    confirmed: { type: Boolean, default: false },
     twoFactorEnabled: { type: Boolean, default: false },
+    googleId: { type: String },
+    profilePicture: { type: String },
+    profileImageKey: { type: String }, // S3 key for deletion
+    authProvider: { type: String, enum: ["local", "google"], default: "local" },
+    accountStatus: {
+      type: String,
+      enum: ["active", "frozen", "suspended"],
+      default: "active",
+    },
+    frozenAt: { type: Date },
+    frozenReason: { type: String },
+    restoredAt: { type: Date },
     changeCredentials: { type: Date },
-    gender: { type: String, enum: GenderType, required: true },
+    gender: { type: String, enum: GenderType },
     role: { type: String, enum: RoleType, default: RoleType.user },
   },
   {

@@ -31,6 +31,10 @@ const bootstrap = async () => {
     return res.status(200).json({ message: "welcome on my app" });
   });
 
+  app.get("/test-google", (req, res, next) => {
+    return res.sendFile(resolve("./google-auth-test.html"));
+  });
+
   app.use("/users", userRouter);
 
   await connectionDB();
