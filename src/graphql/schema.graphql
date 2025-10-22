@@ -1,0 +1,1018 @@
+"""
+Scalar type for MongoDB ObjectId
+"""
+scalar ObjectId
+
+"""
+Scalar type for DateTime
+"""
+scalar DateTime
+
+"""
+Gender type enum matching the User model
+"""
+enum Gender {
+  male
+  female
+}
+
+"""
+Role type enum matching the User model
+"""
+enum Role {
+  user
+  admin
+}
+
+"""
+Account status enum
+"""
+enum AccountStatus {
+  active
+  frozen
+  suspended
+}
+
+"""
+Authentication provider enum
+"""
+enum AuthProvider {
+  local
+  google
+}
+
+"""
+User type representing a user in the system
+Complete user profile with all fields from the user model
+"""
+type User {
+  """
+  Unique identifier for the user (MongoDB ObjectId)
+  """
+  _id: ObjectId!
+
+  """
+  User's first name (minimum 2 characters)
+  """
+  fName: String!
+
+  """
+  User's last name (minimum 2 characters)
+  """
+  lName: String!
+
+  """
+  Full name combining first and last name (virtual field)
+  """
+  userName: String
+
+  """
+  User's email address (unique)
+  """
+  email: String!
+
+  """
+  User's age (must be between 18-60)
+  """
+  age: Int
+
+  """
+  User's phone number
+  """
+  phone: String
+
+  """
+  User's address
+  """
+  address: String
+
+  """
+  User's gender
+  """
+  gender: Gender
+
+  """
+  Email confirmation status
+  """
+  confirmed: Boolean!
+
+  """
+  Two-factor authentication enabled status
+  """
+  twoFactorEnabled: Boolean
+
+  """
+  Google account ID if authenticated via Google
+  """
+  googleId: String
+
+  """
+  Profile picture URL (S3 URL)
+  """
+  profilePicture: String
+
+  """
+  S3 key for profile image (for deletion purposes)
+  """
+  profileImageKey: String
+
+  """
+  Authentication provider used (local or google)
+  """
+  authProvider: AuthProvider
+
+  """
+  Current account status
+  """
+  accountStatus: AccountStatus
+
+  """
+  Date when account was frozen (if applicable)
+  """
+  frozenAt: DateTime
+
+  """
+  Reason for account freeze
+  """
+  frozenReason: String
+
+  """
+  Date when account was restored from frozen state
+  """
+  restoredAt: DateTime
+
+  """
+  User's role in the system
+  """
+  role: Role
+
+  """
+  Date when user credentials were last changed
+  """
+  changeCredentials: DateTime!
+
+  """
+  Date when user account was created
+  """
+  createdAt: DateTime!
+
+  """
+  Date when user account was last updated
+  """
+  updatedAt: DateTime!
+}
+
+"""
+User pagination response for getAllUsers query
+Includes pagination metadata
+"""
+type UserConnection {
+  """
+  List of users in current page
+  """
+  users: [User!]!
+
+  """
+  Pagination information
+  """
+  pagination: PaginationInfo!
+}
+
+"""
+Pagination information
+"""
+type PaginationInfo {
+  """
+  Current page number
+  """
+  page: Int!
+
+  """
+  Number of items per page
+  """
+  limit: Int!
+
+  """
+  Total number of items across all pages
+  """
+  total: Int!
+
+  """
+  Total number of pages
+  """
+  totalPages: Int!
+
+  """
+  Whether there is a next page
+  """
+  hasNextPage: Boolean!
+
+  """
+  Whether there is a previous page
+  """
+  hasPreviousPage: Boolean!
+}
+
+"""
+Statistics about users in the system
+"""
+type UserStats {
+  """
+  Total number of users
+  """
+  totalUsers: Int!
+
+  """
+  Number of confirmed users
+  """
+  confirmedUsers: Int!
+
+  """
+  Number of users with 2FA enabled
+  """
+  twoFactorEnabledUsers: Int!
+
+  """
+  Number of active accounts
+  """
+  activeAccounts: Int!
+
+  """
+  Number of frozen accounts
+  """
+  frozenAccounts: Int!
+
+  """
+  Number of suspended accounts
+  """
+  suspendedAccounts: Int!
+
+  """
+  Number of admin users
+  """
+  adminUsers: Int!
+
+  """
+  Number of regular users
+  """
+  regularUsers: Int!
+}
+
+"""
+Filter options for getAllUsers query
+"""
+input UserFilterInput {
+  """
+  Filter by account status
+  """
+  accountStatus: AccountStatus
+
+  """
+  Filter by role
+  """
+  role: Role
+
+  """
+  Filter by confirmed status
+  """
+  confirmed: Boolean
+
+  """
+  Filter by 2FA enabled status
+  """
+  twoFactorEnabled: Boolean
+
+  """
+  Filter by authentication provider
+  """
+  authProvider: AuthProvider
+
+  """
+  Filter by gender
+  """
+  gender: Gender
+
+  """
+  Search by name or email (case-insensitive)
+  """
+  searchText: String
+
+  """
+  Filter by minimum age
+  """
+  minAge: Int
+
+  """
+  Filter by maximum age
+  """
+  maxAge: Int
+}
+
+"""
+Sort options for getAllUsers query
+"""
+input UserSortInput {
+  """
+  Field to sort by
+  """
+  field: UserSortField!
+
+  """
+  Sort direction (asc or desc)
+  """
+  order: SortOrder!
+}
+
+"""
+Fields available for sorting users
+"""
+enum UserSortField {
+  createdAt
+  updatedAt
+  fName
+  lName
+  email
+  age
+  role
+}
+
+"""
+Sort order direction
+"""
+enum SortOrder {
+  asc
+  desc
+}
+
+"""
+Post status enum matching the Post model
+"""
+enum PostStatus {
+  draft
+  published
+  archived
+  frozen
+}
+
+"""
+Post availability enum
+"""
+enum PostAvailability {
+  public
+  private
+  friends
+}
+
+"""
+Reaction type enum for posts
+"""
+enum ReactionType {
+  like
+  dislike
+}
+
+"""
+Post type representing a post in the system
+"""
+type Post {
+  """
+  Unique identifier for the post
+  """
+  _id: ObjectId!
+
+  """
+  Post title (3-200 characters)
+  """
+  title: String!
+
+  """
+  Post content (10-5000 characters)
+  """
+  content: String!
+
+  """
+  Author of the post (User object resolved via parent resolver)
+  """
+  author: User!
+
+  """
+  Array of image URLs (S3 URLs)
+  """
+  images: [String!]
+
+  """
+  Array of S3 keys for images
+  """
+  imageKeys: [String!]
+
+  """
+  Post tags (lowercase)
+  """
+  tags: [String!]
+
+  """
+  Post status
+  """
+  status: PostStatus!
+
+  """
+  Post availability/visibility
+  """
+  availability: PostAvailability!
+
+  """
+  Number of likes
+  """
+  likesCount: Int!
+
+  """
+  Number of dislikes
+  """
+  dislikesCount: Int!
+
+  """
+  Number of comments
+  """
+  commentsCount: Int!
+
+  """
+  Number of views
+  """
+  viewsCount: Int!
+
+  """
+  Whether post is frozen
+  """
+  isFrozen: Boolean!
+
+  """
+  Date when post was frozen
+  """
+  frozenAt: DateTime
+
+  """
+  User who froze the post
+  """
+  frozenBy: ObjectId
+
+  """
+  Reason for freezing
+  """
+  frozenReason: String
+
+  """
+  Date when freeze expires
+  """
+  frozenUntil: DateTime
+
+  """
+  Whether post is soft deleted
+  """
+  isDeleted: Boolean!
+
+  """
+  Date when post was deleted
+  """
+  deletedAt: DateTime
+
+  """
+  User who deleted the post
+  """
+  deletedBy: ObjectId
+
+  """
+  Post creation date
+  """
+  createdAt: DateTime!
+
+  """
+  Post last update date
+  """
+  updatedAt: DateTime!
+
+  """
+  Current user's reaction to this post (null if no reaction)
+  """
+  userReaction: ReactionType
+}
+
+"""
+Post connection for pagination
+"""
+type PostConnection {
+  """
+  List of posts
+  """
+  posts: [Post!]!
+
+  """
+  Pagination information
+  """
+  pagination: PaginationInfo!
+}
+
+"""
+Input for creating a post
+"""
+input CreatePostInput {
+  """
+  Post title (required, 3-200 characters)
+  """
+  title: String!
+
+  """
+  Post content (required, 10-5000 characters)
+  """
+  content: String!
+
+  """
+  Array of image URLs
+  """
+  images: [String!]
+
+  """
+  Array of S3 keys for images
+  """
+  imageKeys: [String!]
+
+  """
+  Post tags
+  """
+  tags: [String!]
+
+  """
+  Post status (default: draft)
+  """
+  status: PostStatus
+
+  """
+  Post availability (default: public)
+  """
+  availability: PostAvailability
+}
+
+"""
+Input for updating a post
+"""
+input UpdatePostInput {
+  """
+  Post title (optional, 3-200 characters if provided)
+  """
+  title: String
+
+  """
+  Post content (optional, 10-5000 characters if provided)
+  """
+  content: String
+
+  """
+  Array of image URLs to add
+  """
+  images: [String!]
+
+  """
+  Array of S3 keys to add
+  """
+  imageKeys: [String!]
+
+  """
+  Post tags
+  """
+  tags: [String!]
+
+  """
+  Post status
+  """
+  status: PostStatus
+
+  """
+  Post availability
+  """
+  availability: PostAvailability
+}
+
+"""
+Input for filtering posts
+"""
+input PostFilterInput {
+  """
+  Filter by author ID
+  """
+  authorId: ObjectId
+
+  """
+  Filter by status
+  """
+  status: PostStatus
+
+  """
+  Filter by availability
+  """
+  availability: PostAvailability
+
+  """
+  Filter by tags
+  """
+  tags: [String!]
+
+  """
+  Search in title and content
+  """
+  searchText: String
+}
+
+"""
+Response for mutation operations
+"""
+type MutationResponse {
+  """
+  Success status
+  """
+  success: Boolean!
+
+  """
+  Response message
+  """
+  message: String!
+
+  """
+  The affected post (if applicable)
+  """
+  post: Post
+}
+
+"""
+Root Query type containing all available queries
+"""
+type Query {
+  """
+  Get a single user by ID
+  Requires authentication
+  Admins can fetch any user, regular users can only fetch their own profile
+
+  Example:
+  query {
+    getOneUser(id: "507f1f77bcf86cd799439011") {
+      _id
+      fName
+      lName
+      email
+      role
+    }
+  }
+  """
+  getOneUser(
+    """
+    User ID (MongoDB ObjectId as string)
+    """
+    id: ObjectId!
+  ): User
+
+  """
+  Get all users with pagination and filtering
+  Requires authentication
+  Only admins can access this query
+
+  Example:
+  query {
+    getAllUsers(
+      page: 1
+      limit: 20
+      filter: { accountStatus: active, role: user }
+      sort: { field: createdAt, order: desc }
+    ) {
+      users {
+        _id
+        fName
+        lName
+        email
+        accountStatus
+        role
+      }
+      pagination {
+        page
+        limit
+        total
+        totalPages
+        hasNextPage
+      }
+    }
+  }
+  """
+  getAllUsers(
+    """
+    Page number (default: 1)
+    """
+    page: Int
+
+    """
+    Number of items per page (default: 20, max: 100)
+    """
+    limit: Int
+
+    """
+    Filter criteria
+    """
+    filter: UserFilterInput
+
+    """
+    Sort criteria
+    """
+    sort: UserSortInput
+  ): UserConnection!
+
+  """
+  Get the currently authenticated user's profile
+  Requires authentication
+
+  Example:
+  query {
+    me {
+      _id
+      fName
+      lName
+      email
+      profilePicture
+      role
+    }
+  }
+  """
+  me: User
+
+  """
+  Get statistics about users in the system
+  Requires admin authentication
+
+  Example:
+  query {
+    getUserStats {
+      totalUsers
+      confirmedUsers
+      activeAccounts
+      adminUsers
+    }
+  }
+  """
+  getUserStats: UserStats!
+
+  """
+  Search users by name or email
+  Requires authentication
+
+  Example:
+  query {
+    searchUsers(searchText: "john", limit: 10) {
+      _id
+      fName
+      lName
+      email
+      profilePicture
+    }
+  }
+  """
+  searchUsers(
+    """
+    Search text to match against name or email
+    """
+    searchText: String!
+
+    """
+    Maximum number of results (default: 20, max: 50)
+    """
+    limit: Int
+  ): [User!]!
+
+  """
+  Get a single post by ID
+  Requires authentication
+  Returns post with author details resolved via parent resolver
+
+  Example:
+  query {
+    getPost(id: "507f1f77bcf86cd799439011") {
+      _id
+      title
+      content
+      author {
+        _id
+        fName
+        lName
+        email
+      }
+      likesCount
+      userReaction
+    }
+  }
+  """
+  getPost(
+    """
+    Post ID (MongoDB ObjectId as string)
+    """
+    id: ObjectId!
+  ): Post
+
+  """
+  Get all posts with pagination and filtering
+  Requires authentication
+
+  Example:
+  query {
+    getAllPosts(
+      page: 1
+      limit: 10
+      filter: { status: published, availability: public }
+    ) {
+      posts {
+        _id
+        title
+        content
+        author {
+          _id
+          fName
+          lName
+        }
+        likesCount
+      }
+      pagination {
+        page
+        total
+        hasNextPage
+      }
+    }
+  }
+  """
+  getAllPosts(
+    """
+    Page number (default: 1)
+    """
+    page: Int
+
+    """
+    Number of items per page (default: 10, max: 50)
+    """
+    limit: Int
+
+    """
+    Filter criteria
+    """
+    filter: PostFilterInput
+  ): PostConnection!
+
+  """
+  Get posts by the authenticated user
+  Requires authentication
+  """
+  myPosts(page: Int, limit: Int, status: PostStatus): PostConnection!
+}
+
+"""
+Root Mutation type containing all available mutations
+"""
+type Mutation {
+  """
+  Create a new post
+  Requires authentication
+
+  Example:
+  mutation {
+    createPost(input: {
+      title: "My First Post"
+      content: "This is the content of my post"
+      tags: ["technology", "nodejs"]
+      status: published
+      availability: public
+    }) {
+      success
+      message
+      post {
+        _id
+        title
+        author {
+          fName
+          lName
+        }
+      }
+    }
+  }
+  """
+  createPost(
+    """
+    Post data input
+    """
+    input: CreatePostInput!
+  ): MutationResponse!
+
+  """
+  Update an existing post
+  Requires authentication
+  Only post author or admin can update
+
+  Example:
+  mutation {
+    updatePost(
+      id: "507f1f77bcf86cd799439011"
+      input: {
+        title: "Updated Title"
+        content: "Updated content"
+        status: published
+      }
+    ) {
+      success
+      message
+      post {
+        _id
+        title
+        status
+      }
+    }
+  }
+  """
+  updatePost(
+    """
+    Post ID to update
+    """
+    id: ObjectId!
+
+    """
+    Updated post data
+    """
+    input: UpdatePostInput!
+  ): MutationResponse!
+
+  """
+  Delete a post (soft delete)
+  Requires authentication
+  Only post author or admin can delete
+
+  Example:
+  mutation {
+    deletePost(id: "507f1f77bcf86cd799439011") {
+      success
+      message
+    }
+  }
+  """
+  deletePost(
+    """
+    Post ID to delete
+    """
+    id: ObjectId!
+  ): MutationResponse!
+
+  """
+  Like or dislike a post
+  Requires authentication
+  Toggles reaction - if same reaction exists, removes it
+  If different reaction exists, replaces it
+
+  Example:
+  mutation {
+    likePost(
+      postId: "507f1f77bcf86cd799439011"
+      reactionType: like
+    ) {
+      success
+      message
+      post {
+        _id
+        likesCount
+        dislikesCount
+        userReaction
+      }
+    }
+  }
+  """
+  likePost(
+    """
+    Post ID to react to
+    """
+    postId: ObjectId!
+
+    """
+    Reaction type (like or dislike)
+    """
+    reactionType: ReactionType!
+  ): MutationResponse!
+
+  """
+  Update user profile
+  Requires authentication
+  Only user can update their own profile (or admin)
+  """
+  updateProfile(
+    fName: String
+    lName: String
+    age: Int
+    phone: String
+    address: String
+    gender: Gender
+  ): MutationResponse!
+}
+
+"""
+Schema definition
+"""
+schema {
+  query: Query
+  mutation: Mutation
+}

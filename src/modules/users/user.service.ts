@@ -68,6 +68,10 @@ import friendRequestModel, {
 } from "../../db/model/friendRequest.model.js";
 import { BlockedUserRepository } from "../../db/repositories/blockedUser.repository.js";
 import blockedUserModel from "../../db/model/blockedUser.model.js";
+import {
+  sendNotificationToUser,
+  NotificationType,
+} from "../../socket/events/notification.events.js";
 import { v4 as uuidv4 } from "uuid";
 import {
   uploadFileToS3,
@@ -2012,6 +2016,20 @@ class UserService {
 
     const friendRequest = await this._friendRequestModel.create(requestData);
 
+    // Send real-time notification via Socket.IO
+    sendNotificationToUser(userId, {
+      type: NotificationType.FRIEND_REQUEST,
+      title: "New Friend Request",
+      message: `${req.user.fName} ${req.user.lName} sent you a friend request`,
+      data: {
+        requestId: friendRequest._id.toString(),
+        senderId: req.user._id.toString(),
+        senderName: `${req.user.fName} ${req.user.lName}`,
+        senderEmail: req.user.email,
+        message: message || undefined,
+      },
+    });
+
     res.status(201).json({
       success: true,
       message: "Friend request sent successfully",
@@ -2069,6 +2087,40 @@ class UserService {
       newStatus,
       message
     );
+
+    if (!updatedRequest) {
+      return res.status(500).json({
+        success: false,
+        error: "Failed to update friend request",
+      });
+    }
+
+    // Send real-time notification to the sender
+    const senderId = friendRequest.sender.toString();
+    if (action === "accept") {
+      sendNotificationToUser(senderId, {
+        type: NotificationType.FRIEND_REQUEST,
+        title: "Friend Request Accepted",
+        message: `${req.user.fName} ${req.user.lName} accepted your friend request`,
+        data: {
+          requestId: updatedRequest._id.toString(),
+          userId: req.user._id.toString(),
+          userName: `${req.user.fName} ${req.user.lName}`,
+          action: "accepted",
+        },
+      });
+    } else {
+      sendNotificationToUser(senderId, {
+        type: NotificationType.FRIEND_REQUEST,
+        title: "Friend Request Declined",
+        message: `${req.user.fName} ${req.user.lName} declined your friend request`,
+        data: {
+          requestId: updatedRequest._id.toString(),
+          userId: req.user._id.toString(),
+          action: "rejected",
+        },
+      });
+    }
 
     res.json({
       success: true,

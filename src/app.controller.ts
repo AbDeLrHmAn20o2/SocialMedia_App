@@ -5,9 +5,19 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
+import { createServer } from "http";
+import { createHandler } from "graphql-http/lib/use/express";
 import { appError } from "./utils/classError.js";
 import userRouter from "./modules/users/user.controller.js";
+import adminRouter from "./modules/admin/admin.controller.js";
+import chatRouter from "./modules/chat/chat.controller.js";
 import connectionDB from "./db/connectionDB.js";
+import { initializeSocketServer } from "./socket/server.js";
+import { schema } from "./graphql/index.js";
+import {
+  graphqlAuthMiddleware,
+  formatGraphQLError,
+} from "./graphql/middleware.js";
 
 const app: express.Application = express();
 const port: string | number = process.env.PORT || 5000;
@@ -36,6 +46,20 @@ const bootstrap = async () => {
   });
 
   app.use("/users", userRouter);
+  app.use("/admin", adminRouter);
+  app.use("/chat", chatRouter);
+
+  // GraphQL endpoint with authentication context
+  app.all(
+    "/graphql",
+    createHandler({
+      schema,
+      context: (req) => {
+        const authContext = graphqlAuthMiddleware(req.raw);
+        return authContext as any;
+      },
+    })
+  );
 
   await connectionDB();
   app.use("{/*demo}", (req, res, next) => {
@@ -48,9 +72,17 @@ const bootstrap = async () => {
       .json({ message: err.message, stack: err.stack });
   });
 
-  app.listen(port, () => {
-    console.log(`server is running on port  ${port}....... `);
+  // Create HTTP server and initialize Socket.IO
+  const httpServer = createServer(app);
+  const io = initializeSocketServer(httpServer);
+
+  httpServer.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+    console.log(`Socket.IO server is running`);
+    console.log(`Admin namespace available at /admin`);
   });
+
+  return { app, httpServer, io };
 };
 
 export default bootstrap;

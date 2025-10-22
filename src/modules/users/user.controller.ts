@@ -158,4 +158,135 @@ userRouter.patch(
   US.adminRestoreAccount
 );
 
+// Post management routes
+userRouter.post(
+  "/posts",
+  authentication(),
+  US.upload.array("images", 10),
+  validation(UV.createPostSchema),
+  US.createPost
+);
+userRouter.get("/posts", authentication(), US.getPosts);
+userRouter.get("/posts/:postId", authentication(), US.getPost);
+userRouter.patch(
+  "/posts/:postId",
+  authentication(),
+  US.upload.array("images", 10),
+  validation(UV.updatePostSchema),
+  US.updatePost
+);
+userRouter.delete("/posts/:postId", authentication(), US.deletePost);
+userRouter.post(
+  "/posts/:postId/react",
+  authentication(),
+  validation(UV.postReactionSchema),
+  US.reactToPost
+);
+userRouter.get(
+  "/posts/:postId/reactions",
+  authentication(),
+  US.getPostReactions
+);
+
+// Comment management routes
+userRouter.post(
+  "/comments",
+  authentication(),
+  validation(UV.createCommentSchema),
+  US.createComment
+);
+userRouter.get("/comments", authentication(), US.getComments);
+userRouter.get("/posts/:postId/comments", authentication(), US.getRootComments);
+userRouter.get("/comments/:commentId", authentication(), US.getCommentById);
+userRouter.get("/comments/:commentId/replies", authentication(), US.getReplies);
+userRouter.get(
+  "/comments/:commentId/nested",
+  authentication(),
+  US.getNestedComments
+);
+userRouter.patch(
+  "/comments/:commentId",
+  authentication(),
+  validation(UV.updateCommentSchema),
+  US.updateComment
+);
+userRouter.delete("/comments/:commentId", authentication(), US.deleteComment);
+userRouter.post(
+  "/comments/:commentId/react",
+  authentication(),
+  validation(UV.commentReactionSchema),
+  US.reactToComment
+);
+userRouter.get("/comments/search", authentication(), US.searchComments);
+userRouter.get("/users/:userId/comments", authentication(), US.getUserComments);
+
+// Post freeze/unfreeze routes
+userRouter.patch(
+  "/posts/:postId/freeze",
+  authentication(),
+  validation(UV.freezePostSchema),
+  US.freezePost
+);
+userRouter.patch(
+  "/posts/:postId/unfreeze",
+  authentication(),
+  validation(UV.unfreezePostSchema),
+  US.unfreezePost
+);
+userRouter.delete(
+  "/posts/:postId/hard-delete",
+  authentication(),
+  US.hardDeletePost
+);
+
+// Comment freeze/unfreeze routes
+userRouter.patch(
+  "/comments/:commentId/freeze",
+  authentication(),
+  validation(UV.freezeCommentSchema),
+  US.freezeComment
+);
+userRouter.patch(
+  "/comments/:commentId/unfreeze",
+  authentication(),
+  validation(UV.unfreezeCommentSchema),
+  US.unfreezeComment
+);
+userRouter.delete(
+  "/comments/:commentId/hard-delete",
+  authentication(),
+  US.hardDeleteComment
+);
+
+// Block/Unblock user routes
+userRouter.post(
+  "/users/:userId/block",
+  authentication(),
+  validation(UV.blockUserSchema),
+  US.blockUser
+);
+userRouter.delete("/users/:userId/unblock", authentication(), US.unblockUser);
+userRouter.get("/blocked-users", authentication(), US.getBlockedUsers);
+
+// Friend request routes
+userRouter.post(
+  "/friend-requests/:userId",
+  authentication(),
+  validation(UV.sendFriendRequestSchema),
+  US.sendFriendRequest
+);
+userRouter.patch(
+  "/friend-requests/:requestId/respond",
+  authentication(),
+  validation(UV.respondFriendRequestSchema),
+  US.respondFriendRequest
+);
+userRouter.get(
+  "/friend-requests/pending",
+  authentication(),
+  US.getPendingFriendRequests
+);
+userRouter.get("/friends", authentication(), US.getFriends);
+userRouter.delete("/friends/:userId", authentication(), US.unfriend);
+
 export default userRouter;
