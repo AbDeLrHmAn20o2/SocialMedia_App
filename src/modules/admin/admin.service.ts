@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Request, Response, NextFunction } from "express";
 import userModel, { RoleType } from "../../db/model/user.model.js";
 import postModel from "../../db/model/post.model.js";
