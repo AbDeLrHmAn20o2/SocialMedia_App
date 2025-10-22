@@ -62,14 +62,12 @@ class AdminService {
           isFrozen: false,
           isConfirmed: true,
         }),
-        // @ts-ignore - Mongoose model conditional export union type issue
         userModel
           .find({ isDeleted: false })
           .sort({ createdAt: -1 })
           .limit(10)
           .select("email fName lName role createdAt isConfirmed isFrozen")
           .exec(),
-        // @ts-ignore - Mongoose model conditional export union type issue
         postModel
           .find({ isDeleted: false })
           .sort({ createdAt: -1 })
@@ -145,7 +143,6 @@ class AdminService {
       const skip = (Number(page) - 1) * Number(limit);
       const total = await userModel.countDocuments(query);
 
-      // @ts-ignore - Mongoose model conditional export union type issue
       const users: any[] = await userModel
         .find(query)
         .select("-password -__v")
@@ -180,7 +177,6 @@ class AdminService {
 
       const { userId } = req.params;
 
-      // @ts-ignore - Mongoose model conditional export union type issue
       const user: any = await userModel
         .findOne({ _id: userId })
         .select("-password -__v")
@@ -246,7 +242,6 @@ class AdminService {
         });
       }
 
-      // @ts-ignore - Mongoose model conditional export union type issue
       const user: any = await userModel.findOne({ _id: userId }).exec();
 
       if (!user) {
@@ -310,7 +305,6 @@ class AdminService {
         });
       }
 
-      // @ts-ignore - Mongoose model conditional export union type issue
       const user: any = await userModel.findOne({ _id: userId }).exec();
 
       if (!user) {
@@ -366,7 +360,6 @@ class AdminService {
 
       if (type === "posts") {
         const [posts, total] = await Promise.all([
-          // @ts-ignore - Mongoose model conditional export union type issue
           postModel
             .find({ isDeleted: false })
             .populate("author", "fName lName email")
@@ -389,7 +382,6 @@ class AdminService {
         });
       } else if (type === "comments") {
         const [comments, total] = await Promise.all([
-          // @ts-ignore - Mongoose model conditional export union type issue
           commentModel
             .find({ isDeleted: false })
             .populate("author", "fName lName email")
