@@ -6,14 +6,12 @@ import { validation } from "../../middleware/validation.js";
 
 const router = Router();
 
-// Dashboard statistics
 router.get(
   "/dashboard/stats",
   authentication(TokenType.access),
   adminService.getDashboardStats
 );
 
-// User management
 router.get(
   "/users",
   authentication(TokenType.access),
@@ -36,7 +34,6 @@ router.delete(
   adminService.deleteUser
 );
 
-// Content moderation
 router.get(
   "/moderation",
   authentication(TokenType.access),
